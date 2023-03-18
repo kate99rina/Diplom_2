@@ -1,4 +1,4 @@
-package org.example.model.order;
+package model.order;
 
 import lombok.Getter;
 

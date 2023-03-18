@@ -1,7 +1,7 @@
-package org.example.model.user.login;
+package model.user.login;
 
 import lombok.Getter;
-import org.example.model.user.User;
+import model.user.User;
 
 @Getter
 public class SuccessAuthResponse {

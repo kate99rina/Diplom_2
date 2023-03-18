@@ -1,4 +1,4 @@
-package org.example.model.user.register;
+package model.user.register;
 
 import lombok.Getter;
 import org.example.util.FakerData;

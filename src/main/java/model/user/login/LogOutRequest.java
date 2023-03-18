@@ -1,4 +1,4 @@
-package org.example.model.user.login;
+package model.user.login;
 
 public class LogOutRequest {
     /**

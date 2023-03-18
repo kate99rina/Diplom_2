@@ -1,4 +1,4 @@
-package org.example.util;
+package util;
 
 import com.github.javafaker.Faker;
 
