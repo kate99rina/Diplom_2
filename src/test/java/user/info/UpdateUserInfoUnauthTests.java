@@ -1,7 +1,9 @@
 package user.info;
 
-import io.restassured.response.Response;
 import client.UserClient;
+import io.qameta.allure.Allure;
+import io.qameta.allure.junit4.DisplayName;
+import io.restassured.response.Response;
 import model.FailedResponse;
 import model.user.login.SuccessAuthResponse;
 import model.user.register.CreateUserRequest;
@@ -14,6 +16,7 @@ import org.junit.runners.Parameterized;
 
 import static util.FakerData.*;
 
+@DisplayName("Update user info")
 @RunWith(Parameterized.class)
 public class UpdateUserInfoUnauthTests {
     private final UserClient userClient = new UserClient();
@@ -48,6 +51,7 @@ public class UpdateUserInfoUnauthTests {
         token = createResponse.as(SuccessAuthResponse.class).getAccessToken();
     }
 
+    @DisplayName("Обновление инфорации о пользователе без авторизации")
     @Test
     public void check() {
         String expectedEmail = userRequest.getEmail().concat(difEmail);
@@ -59,16 +63,13 @@ public class UpdateUserInfoUnauthTests {
                 expectedPassword,
                 expectedName).as(FailedResponse.class);
 
+        Allure.step("Проверка ответа");
         Assert.assertFalse("Invalid success status", response.isSuccess());
         Assert.assertEquals("Invalid message", errorMsg, response.getMessage());
     }
 
     @After
     public void afterClass() {
-        userClient.deleteUser(userRequest, validateToken(token));
-    }
-
-    private String validateToken(String accessToken) {
-        return accessToken.replaceFirst("Bearer ", "");
+        userClient.deleteUser(userRequest, token);
     }
 }

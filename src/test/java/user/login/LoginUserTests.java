@@ -1,6 +1,8 @@
 package user.login;
 
 import client.UserClient;
+import io.qameta.allure.Allure;
+import io.qameta.allure.junit4.DisplayName;
 import model.user.login.SuccessAuthResponse;
 import model.user.register.CreateUserRequest;
 import org.junit.After;
@@ -10,6 +12,7 @@ import org.junit.Test;
 import static org.apache.http.HttpStatus.SC_OK;
 import static util.FakerData.*;
 
+@DisplayName("User log in")
 public class LoginUserTests {
 
     private final UserClient userClient = new UserClient();
@@ -23,26 +26,20 @@ public class LoginUserTests {
         var response = userClient
                 .createUser(userRequest)
                 .as(SuccessAuthResponse.class);
-        token = validateToken(response.getAccessToken());
+        token = response.getAccessToken();
     }
 
-    /**
-     * Логин пользователя:
-     * логин под существующим пользователем,
-     * логин с неверным логином и паролем.
-     */
+    @DisplayName("Авторизация под существующим пользователем")
     @Test
     public void check() {
         var response = userClient.loginUser(userRequest.getEmail(),
                 userRequest.getPassword());
+        Allure.step("Проверка ответа");
         response.then().assertThat().statusCode(SC_OK);
     }
     @After
     public void afterClass() {
-        userClient.deleteUser(userRequest, validateToken(token));
+        userClient.deleteUser(userRequest, token);
     }
 
-    private String validateToken(String accessToken) {
-        return accessToken.replaceFirst("Bearer ", "");
-    }
 }

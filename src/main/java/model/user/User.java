@@ -1,7 +1,6 @@
 package model.user;
 
 import lombok.Getter;
-import org.example.util.FakerData;
 
 @Getter
 public class User {

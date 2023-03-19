@@ -1,6 +1,8 @@
 package user.register;
 
 import client.UserClient;
+import io.qameta.allure.Allure;
+import io.qameta.allure.junit4.DisplayName;
 import model.FailedResponse;
 import model.user.register.CreateUserRequest;
 import org.junit.Assert;
@@ -11,7 +13,7 @@ import org.junit.runners.Parameterized;
 import static util.FakerData.*;
 
 @RunWith(Parameterized.class)
-//@DisplayName("Create user")
+@DisplayName("Create user")
 public class CreateUserErrorFieldsTests {
     private final UserClient userClient = new UserClient();
     private final String msgError = "Email, password and name are required fields";
@@ -27,11 +29,6 @@ public class CreateUserErrorFieldsTests {
         this.name = name;
     }
 
-    /**
-     * Создание пользователя:
-     * создать пользователя и не заполнить одно из обязательных полей.
-     */
-
     @Parameterized.Parameters(name = "Тестовые данные: {0} {1} {2}")
     public static Object[][] getTestData() {
         return new Object[][]{
@@ -41,11 +38,13 @@ public class CreateUserErrorFieldsTests {
         };
     }
 
+    @DisplayName("Создание пользователя без заполнения одного из обязательных полей")
     @Test
     public void check() {
         userRequest = new CreateUserRequest(email, pass, name);
         FailedResponse failedResponse = userClient.createUser(userRequest)
                 .as(FailedResponse.class);
-        Assert.assertEquals("Response error", msgError, failedResponse.getMessage());//todo роверить статус?
+        Allure.step("Проверка ответа");
+        Assert.assertEquals("Response error", msgError, failedResponse.getMessage());
     }
 }

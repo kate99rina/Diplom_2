@@ -1,7 +1,7 @@
 package model.user.register;
 
 import lombok.Getter;
-import org.example.util.FakerData;
+import util.FakerData;
 
 @Getter
 public class CreateUserRequest {

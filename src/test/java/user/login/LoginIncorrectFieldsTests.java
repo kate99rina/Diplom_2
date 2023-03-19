@@ -1,7 +1,9 @@
 package user.login;
 
-import io.restassured.response.Response;
 import client.UserClient;
+import io.qameta.allure.Allure;
+import io.qameta.allure.junit4.DisplayName;
+import io.restassured.response.Response;
 import model.user.login.SuccessAuthResponse;
 import model.user.register.CreateUserRequest;
 import org.junit.After;
@@ -11,9 +13,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
-import static util.FakerData.*;
 import static org.hamcrest.Matchers.equalTo;
+import static util.FakerData.*;
 
+@DisplayName("User log in")
 @RunWith(Parameterized.class)
 public class LoginIncorrectFieldsTests {
     private final UserClient userClient = new UserClient();
@@ -43,11 +46,13 @@ public class LoginIncorrectFieldsTests {
         createResponse = userClient.createUser(userRequest);
     }
 
+    @DisplayName("Авторизация пользователя с некорректно заполненными полями")
     @Test
     public void check() {
         var response = userClient.loginUser(userRequest.getEmail().concat(difEmail),
                 userRequest.getPassword().concat(difPass));
         String expectedError = "email or password are incorrect";
+        Allure.step("Проверка ответа");
         response.then().assertThat()
                 .statusCode(SC_UNAUTHORIZED)
                 .body("message", equalTo(expectedError));
@@ -56,10 +61,6 @@ public class LoginIncorrectFieldsTests {
     @After
     public void afterClass() {
         String token = createResponse.as(SuccessAuthResponse.class).getAccessToken();
-        userClient.deleteUser(userRequest, validateToken(token));
-    }
-
-    private String validateToken(String accessToken) {
-        return accessToken.replaceFirst("Bearer ", "");
+        userClient.deleteUser(userRequest, token);
     }
 }

@@ -2,6 +2,8 @@ package order;
 
 import client.OrderClient;
 import client.UserClient;
+import io.qameta.allure.Allure;
+import io.qameta.allure.junit4.DisplayName;
 import model.order.Ingredient;
 import model.order.ListIngredientsResponse;
 import model.user.login.SuccessAuthResponse;
@@ -17,10 +19,8 @@ import static util.FakerData.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
+@DisplayName("Create order")
 public class CheckCreatedOrderTests {
-    //Получение заказов конкретного пользователя:
-    //авторизованный пользователь,
-    //неавторизованный пользователь.
     private final UserClient userClient = new UserClient();
     private CreateUserRequest userRequest;
     private String token;
@@ -33,31 +33,30 @@ public class CheckCreatedOrderTests {
         var response = userClient
                 .createUser(userRequest)
                 .as(SuccessAuthResponse.class);
-        token = validateToken(response.getAccessToken());
-        ingredients = orderClient.getIngredients()
-                .as(ListIngredientsResponse.class).getData();//todo проверять саксес, запихатьпроверку внутрь метода и выдавать список сразу
+        token = response.getAccessToken();
+        ingredients = orderClient.getIngredients();
         orderClient.createOrder(
                 List.of(ingredients.get(0).get_id(),
                         ingredients.get(1).get_id()));
     }
 
+    @DisplayName("Получение заказов авторизованного пользователя")
     @Test
     public void checkOrdersWithAuth() {
         var response = orderClient.getAllOrders(token);
+        Allure.step("Проверка ответа");
         response.then().assertThat()
                 .statusCode(SC_OK)
                 .body("orders.ingredients", notNullValue());
     }
 
+    @DisplayName("Получение заказов не авторизованного пользователя")
     @Test
     public void checkOrdersUnauth() {
         var response = orderClient.getAllOrders();
+        Allure.step("Проверка ответа");
         response.then().assertThat()
                 .statusCode(SC_UNAUTHORIZED)
                 .body("message", equalTo("You should be authorised"));
-    }
-
-    private String validateToken(String accessToken) {
-        return accessToken.replaceFirst("Bearer ", "");
     }
 }

@@ -2,6 +2,8 @@ package order;
 
 import client.OrderClient;
 import client.UserClient;
+import io.qameta.allure.Allure;
+import io.qameta.allure.junit4.DisplayName;
 import model.order.Ingredient;
 import model.order.ListIngredientsResponse;
 import model.user.login.SuccessAuthResponse;
@@ -16,6 +18,7 @@ import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 import static util.FakerData.*;
 import static org.hamcrest.Matchers.equalTo;
 
+@DisplayName("Create order")
 public class CreateInvalidOrderTests {
     private final UserClient userClient = new UserClient();
     private CreateUserRequest userRequest;
@@ -29,32 +32,27 @@ public class CreateInvalidOrderTests {
         var response = userClient
                 .createUser(userRequest)
                 .as(SuccessAuthResponse.class);
-        token = validateToken(response.getAccessToken());
-        ingredients = orderClient.getIngredients()
-                .as(ListIngredientsResponse.class).getData();//todo проверять саксес, запихатьпроверку внутрь метода и выдавать список сразу
-
+        token = response.getAccessToken();
+        ingredients = orderClient.getIngredients();
     }
 
-    //без ингредиентов
+    @DisplayName("Создание заказа без ингредиентов")
     @Test
     public void checkNullIngredients() {
         var createOrderResponse = orderClient.createOrder(token, null);
+        Allure.step("Проверка ответа");
         createOrderResponse.then().assertThat()
                 .statusCode(SC_BAD_REQUEST)
                 .body("message", equalTo("Ingredient ids must be provided"));
     }
 
-    //с неверным хешем ингредиентов
+    @DisplayName("Создание заказа с неверным хешем ингредиентов")
     @Test
     public void checkInvalidIngredients() {
         var createOrderResponse = orderClient.createOrder(token,
                 List.of("test", ingredients.get(1).get_id()));
+        Allure.step("Проверка ответа");
         createOrderResponse.then().assertThat()
                 .statusCode(SC_INTERNAL_SERVER_ERROR);
-    }
-
-
-    private String validateToken(String accessToken) {
-        return accessToken.replaceFirst("Bearer ", "");
     }
 }

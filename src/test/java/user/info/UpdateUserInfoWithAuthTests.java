@@ -1,7 +1,9 @@
 package user.info;
 
-import io.restassured.response.Response;
 import client.UserClient;
+import io.qameta.allure.Allure;
+import io.qameta.allure.junit4.DisplayName;
+import io.restassured.response.Response;
 import model.user.SuccessUpdateUser;
 import model.user.login.SuccessAuthResponse;
 import model.user.register.CreateUserRequest;
@@ -14,6 +16,7 @@ import org.junit.runners.Parameterized;
 
 import static util.FakerData.*;
 
+@DisplayName("Update user info")
 @RunWith(Parameterized.class)
 public class UpdateUserInfoWithAuthTests {
 
@@ -49,6 +52,7 @@ public class UpdateUserInfoWithAuthTests {
         token = createResponse.as(SuccessAuthResponse.class).getAccessToken();
     }
 
+    @DisplayName("Обновление инфорации о пользователе с авторизацией")
     @Test
     public void check() {
         String expectedEmail = userRequest.getEmail().concat(difEmail);
@@ -57,7 +61,8 @@ public class UpdateUserInfoWithAuthTests {
         var response = userClient.updateUserInfo(expectedEmail,
                 expectedPassword,
                 expectedName,
-                validateToken(token)).as(SuccessUpdateUser.class);
+                token).as(SuccessUpdateUser.class);
+        Allure.step("Проверка ответа");
         Assert.assertTrue("Invalid success status", response.isSuccess());
         Assert.assertEquals("Invalid email", expectedEmail, response.getUser().getEmail());
         Assert.assertEquals("Invalid name", expectedName, response.getUser().getName());
@@ -65,10 +70,6 @@ public class UpdateUserInfoWithAuthTests {
 
     @After
     public void afterClass() {
-        userClient.deleteUser(userRequest, validateToken(token));
-    }
-
-    private String validateToken(String accessToken) {
-        return accessToken.replaceFirst("Bearer ", "");
+        userClient.deleteUser(userRequest, token);
     }
 }
